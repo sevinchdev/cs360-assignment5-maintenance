@@ -82,4 +82,18 @@ describe("TranscriptStore", () => {
     assert.deepEqual(store.getStudentIDs("  grace lee "), [studentID]);
     assert.equal(store.getTranscript(studentID).student.studentName, "Grace Lee");
   });
+
+  test("REF-201: addGrade and changeGrade share the same validation rules", () => {
+    const studentID = store.addStudent("Noah");
+    store.addGrade(studentID, "CS360", 80);
+
+    for (const call of [
+      (course, grade) => store.addGrade(studentID, course, grade),
+      (course, grade) => store.changeGrade(studentID, course, grade),
+    ]) {
+      assert.throws(() => call("  ", 90), /Course name is required/);
+      assert.throws(() => call("CS360", 101), /Grade must be an integer from 0 to 100/);
+      assert.throws(() => call("CS360", 85.5), /Grade must be an integer from 0 to 100/);
+    }
+  });
 });
