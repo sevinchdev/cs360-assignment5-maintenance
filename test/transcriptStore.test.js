@@ -55,6 +55,7 @@ describe("TranscriptStore", () => {
     assert.throws(() => store.deleteStudent(secondID), /Student not found/);
   });
 
+
     test("BUG-102: a second grade for the same student and course is rejected", () => {
     const studentID = store.addStudent("Lin");
     store.addGrade(studentID, "CS360", 85);
@@ -64,5 +65,14 @@ describe("TranscriptStore", () => {
       /Grade already exists for course CS360/,
     );
     assert.equal(store.getGrade(studentID, "CS360"), 85);
+  });
+
+  test("BUG-101: deleting a student removes their stored grades", () => {
+    const studentID = store.addStudent("Ada");
+    store.addGrade(studentID, "CS360", 90);
+
+    store.deleteStudent(studentID);
+
+    assert.equal(store.getGrade(studentID, "CS360"), undefined);
   });
 });
